@@ -139,22 +139,38 @@
 
       register: publicrt
 
+    - name: Get Existing Elastic IP
+      amazon.aws.ec2_eip_info:
+        region: "{{ region }}"
+        filters:
+          "tag:Name": vprofile-nat-eip
+      register: existing_eip
 
-    - name: Allocate Elastic IP for NAT Gateway
+    - name: Allocate Elastic IP if not exists
       amazon.aws.ec2_eip:
         region: "{{ region }}"
         in_vpc: true
         state: present
         tags:
           Name: vprofile-nat-eip
-      register: eipout
+      register: new_eip
+      when: existing_eip.addresses | length == 0
+
+    - name: Set Elastic IP Fact
+      set_fact:
+        eip_allocation_id: >-
+          {{ existing_eip.addresses[0].allocation_id
+             if existing_eip.addresses | length > 0
+             else new_eip.allocation_id }}
+          
+    
 
     - name: Create NAT Gateway
       amazon.aws.ec2_vpc_nat_gateway:
         subnet_id: "{{ pubsub1.subnet.id }}"
-        allocation_id: "{{ eipout.allocation_id }}"
+        allocation_id: "{{ eip_allocation_id }}"
         region: "{{ region }}"
-        state: "{{ state }}"
+        state: present
         wait: true
         tags:
           Name: vprofile-nat-gateway
