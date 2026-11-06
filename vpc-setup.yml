@@ -180,10 +180,65 @@
       register: privatert
 
 
-    - name: Display NAT Gateway
+    - name: Display All Resource IDs
       debug:
-        var: natout
+        msg: "{{ item.name }} : {{ item.id }}"
+      loop:
+        - { name: "VPC ID", id: "{{ vpc_id }}" }
+        - { name: "Public Subnet 1", id: "{{ pubsub1_id }}" }
+        - { name: "Public Subnet 2", id: "{{ pubsub2_id }}" }
+        - { name: "Public Subnet 3", id: "{{ pubsub3_id }}" }
+        - { name: "Private Subnet 1", id: "{{ privsub1_id }}" }
+        - { name: "Private Subnet 2", id: "{{ privsub2_id }}" }
+        - { name: "Private Subnet 3", id: "{{ privsub3_id }}" }
+        - { name: "Internet Gateway", id: "{{ igw_id }}" }
+        - { name: "Elastic IP", id: "{{ eip_id }}" }
+        - { name: "NAT Gateway", id: "{{ nat_id }}" }
+        - { name: "Public Route Table", id: "{{ publicrt_id }}" }
+        - { name: "Private Route Table", id: "{{ privatert_id }}" }
 
-    - name: Display Private Route Table
-      debug:
-        var: privatert
+
+    - name: Set Facts for All AWS Resources
+      set_fact:
+        vpc_id: "{{ vpcout.vpc.id }}"
+
+        pubsub1_id: "{{ pubsub1.subnet.id }}"
+        pubsub2_id: "{{ pubsub2.subnet.id }}"
+        pubsub3_id: "{{ pubsub3.subnet.id }}"
+
+        privsub1_id: "{{ privsub1.subnet.id }}"
+        privsub2_id: "{{ privsub2.subnet.id }}"
+        privsub3_id: "{{ privsub3.subnet.id }}"
+
+        igw_id: "{{ igwout.gateway_id }}"
+        eip_id: "{{ eipout.allocation_id }}"
+        nat_id: "{{ natout.nat_gateway_id }}"
+
+        publicrt_id: "{{ publicrt.route_table.id | default(publicrt.route_table.route_table_id) }}"
+        privatert_id: "{{ privatert.route_table.id | default(privatert.route_table.route_table_id) }}"
+
+        cacheable: yes
+
+
+
+    - name: Copy All Resource IDs to Output File
+      copy:
+        content: |
+          VPC ID: {{ vpc_id }}
+
+          Public Subnet 1 ID: {{ pubsub1_id }}
+          Public Subnet 2 ID: {{ pubsub2_id }}
+          Public Subnet 3 ID: {{ pubsub3_id }}
+
+          Private Subnet 1 ID: {{ privsub1_id }}
+          Private Subnet 2 ID: {{ privsub2_id }}
+          Private Subnet 3 ID: {{ privsub3_id }}
+
+          Internet Gateway ID: {{ igw_id }}
+          Elastic IP Allocation ID: {{ eip_id }}
+          NAT Gateway ID: {{ nat_id }}
+
+          Public Route Table ID: {{ publicrt_id }}
+          Private Route Table ID: {{ privatert_id }}
+        dest: vars/output_var
+
