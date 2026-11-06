@@ -139,6 +139,16 @@
 
       register: publicrt
 
+
+    - name: Allocate Elastic IP for NAT Gateway
+      amazon.aws.ec2_eip:
+        region: "{{ region }}"
+        in_vpc: true
+        state: present
+        tags:
+          Name: vprofile-nat-eip
+      register: eipout
+
     - name: Create NAT Gateway
       amazon.aws.ec2_vpc_nat_gateway:
         subnet_id: "{{ pubsub1.subnet.id }}"
