@@ -202,23 +202,18 @@
     - name: Set Facts for All AWS Resources
       ansible.builtin.set_fact:
         vpc_id: "{{ vpcout.vpc.id }}"
-
         pubsub1_id: "{{ pubsub1.subnet.id }}"
         pubsub2_id: "{{ pubsub2.subnet.id }}"
         pubsub3_id: "{{ pubsub3.subnet.id }}"
-
         privsub1_id: "{{ privsub1.subnet.id }}"
         privsub2_id: "{{ privsub2.subnet.id }}"
         privsub3_id: "{{ privsub3.subnet.id }}"
-
         igw_id: "{{ igwout.gateway_id }}"
         eip_id: "{{ eipout.allocation_id }}"
         nat_id: "{{ natout.nat_gateway_id }}"
-
-        publicrt_id: "{{ publicrt.route_table.id | default(publicrt.route_table.route_table_id, true) }}"
-        privatert_id: "{{ privatert.route_table.id | default(privatert.route_table.route_table_id, true) }}"
-
-      cacheable: yes
+        publicrt_id: "{{ publicrt.route_table.id }}"
+        privatert_id: "{{ privatert.route_table.id }}"
+        cacheable: yes
 
     # COPY RESOURCE IDs
 
