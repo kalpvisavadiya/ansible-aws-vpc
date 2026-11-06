@@ -196,26 +196,11 @@
       register: privatert
 
 
-    - name: Display All Resource IDs
-      debug:
-        msg: "{{ item.name }} : {{ item.id }}"
-      loop:
-        - { name: "VPC ID", id: "{{ vpc_id }}" }
-        - { name: "Public Subnet 1", id: "{{ pubsub1_id }}" }
-        - { name: "Public Subnet 2", id: "{{ pubsub2_id }}" }
-        - { name: "Public Subnet 3", id: "{{ pubsub3_id }}" }
-        - { name: "Private Subnet 1", id: "{{ privsub1_id }}" }
-        - { name: "Private Subnet 2", id: "{{ privsub2_id }}" }
-        - { name: "Private Subnet 3", id: "{{ privsub3_id }}" }
-        - { name: "Internet Gateway", id: "{{ igw_id }}" }
-        - { name: "Elastic IP", id: "{{ eip_id }}" }
-        - { name: "NAT Gateway", id: "{{ nat_id }}" }
-        - { name: "Public Route Table", id: "{{ publicrt_id }}" }
-        - { name: "Private Route Table", id: "{{ privatert_id }}" }
 
+    # SET FACTS
 
     - name: Set Facts for All AWS Resources
-      set_fact:
+      ansible.builtin.set_fact:
         vpc_id: "{{ vpcout.vpc.id }}"
 
         pubsub1_id: "{{ pubsub1.subnet.id }}"
@@ -230,15 +215,15 @@
         eip_id: "{{ eipout.allocation_id }}"
         nat_id: "{{ natout.nat_gateway_id }}"
 
-        publicrt_id: "{{ publicrt.route_table.id | default(publicrt.route_table.route_table_id) }}"
-        privatert_id: "{{ privatert.route_table.id | default(privatert.route_table.route_table_id) }}"
+        publicrt_id: "{{ publicrt.route_table.id | default(publicrt.route_table.route_table_id, true) }}"
+        privatert_id: "{{ privatert.route_table.id | default(privatert.route_table.route_table_id, true) }}"
 
-        cacheable: yes
+      cacheable: yes
 
-
+    # COPY RESOURCE IDs
 
     - name: Copy All Resource IDs to Output File
-      copy:
+      ansible.builtin.copy:
         content: |
           VPC ID: {{ vpc_id }}
 
@@ -258,3 +243,23 @@
           Private Route Table ID: {{ privatert_id }}
         dest: vars/output_var
 
+    # DEBUG USING LOOP
+
+    - name: Display All Resource IDs
+      ansible.builtin.debug:
+        msg: "{{ item.name }} : {{ item.id }}"
+      loop:
+        - { name: "VPC ID", id: "{{ vpc_id }}" }
+        - { name: "Public Subnet 1", id: "{{ pubsub1_id }}" }
+        - { name: "Public Subnet 2", id: "{{ pubsub2_id }}" }
+        - { name: "Public Subnet 3", id: "{{ pubsub3_id }}" }
+        - { name: "Private Subnet 1", id: "{{ privsub1_id }}" }
+        - { name: "Private Subnet 2", id: "{{ privsub2_id }}" }
+        - { name: "Private Subnet 3", id: "{{ privsub3_id }}" }
+        - { name: "Internet Gateway", id: "{{ igw_id }}" }
+        - { name: "Elastic IP", id: "{{ eip_id }}" }
+        - { name: "NAT Gateway", id: "{{ nat_id }}" }
+        - { name: "Public Route Table", id: "{{ publicrt_id }}" }
+        - { name: "Private Route Table", id: "{{ privatert_id }}" }
+      loop_control:
+        label: "{{ item.name }}"
