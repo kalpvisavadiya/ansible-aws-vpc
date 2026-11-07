@@ -227,7 +227,7 @@
         privsub2_id: "{{ privsub2.subnet.id }}"
         privsub3_id: "{{ privsub3.subnet.id }}"
         igw_id: "{{ igwout.gateway_id }}"
-        eip_id: "{{ eipout.allocation_id }}"
+        eip_id: "{{ eip_allocation_id }}"
         nat_id: "{{ nat_gateway_id }}"
         publicrt_id: "{{ publicrt.route_table.id }}"
         privatert_id: "{{ privatert.route_table.id }}"
